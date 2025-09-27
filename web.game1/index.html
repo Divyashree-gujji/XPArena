@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gamified Learning Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #ede9fe); /* soft blue & lavender */
+      color: #333;
+      text-align: center;
+    }
+
+    header {
+      padding: 20px;
+      background: linear-gradient(90deg, #4f46e5, #3b82f6); /* indigo to blue */
+      color: white;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2em;
+    }
+
+    .stats {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .stat-box {
+      background: white;
+      border-radius: 15px;
+      padding: 15px 25px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 1.2em;
+    }
+
+    .progress-bar {
+      width: 70%;
+      background: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 20px auto;
+      height: 25px;
+    }
+
+    .progress-fill {
+      width: 60%; /* Example progress */
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6); /* blue to violet */
+      height: 100%;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      font-size: 1.1em;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      transition: transform 0.2s, background 0.3s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: #f3f4f6; /* subtle gray hover */
+    }
+
+    footer {
+      margin-top: 20px;
+      padding: 10px;
+      background: linear-gradient(90deg, #4f46e5, #3b82f6);
+      color: white;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📚 My Learning Dashboard</h1>
+    <p>Welcome back, Super Learner!</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat-box">⭐ Points: <b>120</b></div>
+    <div class="stat-box">🏆 Badges: <b>3</b></div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+  </div>
+  <p><b>Progress:</b> 60%</p>
+
+  <div class="menu">
+    <a href="quiz.html"><div class="card">📝 Start Quiz</div></a>
+    <a href="progress.html"><div class="card">📊 Track Progress</div></a>
+    <a href="puzzle.html"><div class="card">🧩 Complete Puzzle</div></a>
+    <a href="arscan.html"><div class="card">📷 AR Object Scanner</div></a>
+    <a href="chat.html"><div class="card">🤖 AI Chatbot</div></a>
+  </div>
+
+  <footer>
+    🌟 Keep learning, keep shining! 🌟
+  </footer>
+
+</body>
+</html>

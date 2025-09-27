@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chatbot (English + Kannada)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #chatbox {
+      width: 480px;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      max-height: 400px;
+    }
+    .msg {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 10px;
+      line-height: 1.4;
+    }
+    .user { background: #dbeafe; text-align: right; }
+    .bot { background: #f3f4f6; text-align: left; }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    /* 🔙 Floating Home button at bottom-right */
+    #backBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    #backBtn:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <div id="chatbox">
+    <div id="messages"></div>
+    <input id="input" type="text" placeholder="Type a message...">
+  </div>
+
+  <!-- Floating button -->
+  <button id="backBtn" onclick="goHome()">⬅ Home</button>
+
+  <script>
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("input");
+
+    // Back button function
+    function goHome() {
+      window.location.href = "index.html"; // change if your home page has a different name
+    }
+
+    // 📖 Dictionary
+    const dictionary = {
+      "hello": "ನಮಸ್ಕಾರ",
+      "how are you": "ನೀವು ಹೇಗಿದ್ದೀರಿ?",
+      "good morning": "ಶುಭೋದಯ",
+      "thank you": "ಧನ್ಯವಾದಗಳು",
+      "bye": "ವಿದಾಯ",
+      "math": "ಗಣಿತ",
+      "science": "ವಿಜ್ಞಾನ",
+      "earth": "ಭೂಮಿ",
+      "moon": "ಚಂದ್ರ",
+      "sun": "ಸೂರ್ಯ"
+    };
+
+    // 📚 Knowledge base
+    const knowledge = {
+      "photosynthesis": "Photosynthesis is the process by which green plants make food using sunlight. 🌱\n\nಕಾಂತಿಯಾಂಶ ಸಂಶ್ಲೇಷಣವು ಹಸಿರು ಸಸ್ಯಗಳು ಸೂರ್ಯನ ಬೆಳಕನ್ನು ಬಳಸಿ ಆಹಾರ ತಯಾರಿಸುವ ಪ್ರಕ್ರಿಯೆ.",
+      "solar system": "The Solar System has the Sun, 8 planets, moons, asteroids and comets. ☀️🪐\n\nಸೌರಮಂಡಲವು ಸೂರ್ಯ, 8 ಗ್ರಹಗಳು, ಚಂದ್ರ, ಗ್ರಹಾಣುಗಳು ಮತ್ತು ಧೂಮಕೇತುಗಳನ್ನು ಹೊಂದಿದೆ.",
+      "water cycle": "The water cycle moves water from the earth to the sky and back again (evaporation, condensation, rain). 💧\n\nನೀರಿನ ಚಕ್ರವು ಭೂಮಿಯಿಂದ ಆಕಾಶಕ್ಕೆ ಮತ್ತು ಹಿಂತಿರುಗಿ ಸಾಗುವ ಪ್ರಕ್ರಿಯೆ (ಆವೋಯನ, ಸಂಯೋಜನೆ, ಮಳೆ).",
+      "human body": "The human body has organ systems like heart ❤️, lungs, brain 🧠 that help us live.\n\nಮಾನವ ದೇಹದಲ್ಲಿ ಹೃದಯ, ಶ್ವಾಸಕೋಶ, ಮೆದುಳು ಮುಂತಾದ ಅಂಗಾಂಗ ವ್ಯವಸ್ಥೆಗಳಿವೆ.",
+      "division": "Division is splitting a number into equal groups. ➗\n\nಭಾಗಾಕಾರವು ಸಂಖ್ಯೆಯನ್ನು ಸಮಾನ ಗುಂಪುಗಳಾಗಿ ವಿಭಜಿಸುವ ಪ್ರಕ್ರಿಯೆ.",
+      "multiplication": "Multiplication is repeated addition. ✖️\n\nಗುಣಾಕಾರವು ಪುನಃಪುನಃ ಸೇರ್ಪಡೆ ಮಾಡುವ ಪ್ರಕ್ರಿಯೆ.",
+      "fraction": "A fraction shows a part of a whole (like 1/2 = half). 🥧\n\nಅಂಶವೆಂದರೆ ಒಂದು ಸಂಪೂರ್ಣದ ಭಾಗ.",
+      "prime number": "A prime number has only 2 factors: 1 and itself (like 2, 3, 5, 7). 🔢\n\nಅವಿಭಾಜ್ಯ ಸಂಖ್ಯೆಗೆ ಕೇವಲ 2 ವಿಭಜಕರು: 1 ಮತ್ತು ಅದು.",
+      "india": "India is our country 🇮🇳. Its capital is New Delhi. \n\nಭಾರತ ನಮ್ಮ ದೇಶ. ಇದರ ರಾಜಧಾನಿ ನವದೆಹಲಿ.",
+      "karnataka": "Karnataka is a state in India. Bengaluru is its capital. 🌸\n\nಕರ್ನಾಟಕ ಭಾರತದ ಒಂದು ರಾಜ್ಯ. ಬೆಂಗಳೂರೇ ಇದರ ರಾಜಧಾನಿ.",
+      "computer": "A computer is an electronic machine that stores and processes data. 💻\n\nಕಂಪ್ಯೂಟರ್ ಒಂದು ಎಲೆಕ್ಟ್ರಾನಿಕ್ ಯಂತ್ರ, ಇದು ಡೇಟಾವನ್ನು ಸಂಗ್ರಹಿಸಿ ಸಂಸ್ಕರಿಸುತ್ತದೆ.",
+      "internet": "The Internet connects computers worldwide so we can share information. 🌍\n\nಇಂಟರ್‌ನೆಟ್ ವಿಶ್ವದಾದ್ಯಂತ ಕಂಪ್ಯೂಟರ್‌ಗಳನ್ನು ಸಂಪರ್ಕಿಸಿ ಮಾಹಿತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳುತ್ತದೆ."
+    };
+
+    // 😊 Emotion handling
+    function detectEmotion(text) {
+      if (text.includes("sad")) return "Don't be sad 😊 Everything will be okay!\n\n😔 ದುಃಖಪಡಬೇಡಿ, ಎಲ್ಲವೂ ಸರಿಯಾಗುತ್ತದೆ.";
+      if (text.includes("happy")) return "Yay! 🎉 I'm happy to hear that!\n\n😁 ತುಂಬಾ ಸಂತೋಷವಾಗಿದೆ!";
+      if (text.includes("angry")) return "Take a deep breath 😌 It will help you calm down.\n\n😡 ಆಳವಾದ ಉಸಿರಾಡಿ, ಇದು ನಿಮಗೆ ಶಾಂತಿಯನ್ನು ನೀಡುತ್ತದೆ.";
+      return null;
+    }
+
+    // Add message
+    function addMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.className = "msg " + sender;
+      msg.innerText = text;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Input handling
+    input.addEventListener("keypress", function(e) {
+      if (e.key === "Enter" && input.value.trim() !== "") {
+        const userText = input.value.trim();
+        addMessage("user", userText);
+        input.value = "";
+
+        let reply = "";
+
+        // 1. Emotion
+        reply = detectEmotion(userText.toLowerCase());
+
+        // 2. Knowledge
+        if (!reply) {
+          for (let key in knowledge) {
+            if (userText.toLowerCase().includes(key)) {
+              reply = knowledge[key];
+              break;
+            }
+          }
+        }
+
+        // 3. Dictionary
+        if (!reply) {
+          for (let key in dictionary) {
+            if (userText.toLowerCase().includes(key)) {
+              reply = dictionary[key] + " (" + key + ")";
+              break;
+            }
+          }
+        }
+
+        // 4. Default
+        if (!reply) reply = "I'm still learning 🤖. Try asking me about 'photosynthesis', 'division', or say 'I am sad'.";
+
+        addMessage("bot", reply);
+      }
+    });
+  </script>
+</body>
+</html>

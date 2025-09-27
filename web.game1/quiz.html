@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XP Arena - Quiz</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+      margin: 0;
+    }
+    h1 { margin-top: 20px; }
+    #question { font-size: 1.4em; margin: 20px; }
+    #options button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+    }
+    #feedback { margin: 15px; min-height: 30px; }
+    .status { margin: 20px; }
+    a {
+      display: inline-block;
+      margin: 20px;
+      padding: 10px 20px;
+      background: #00ccff;
+      border-radius: 12px;
+      text-decoration: none;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Adventure Quiz</h1>
+  <div id="question"></div>
+  <div id="options"></div>
+  <p id="feedback"></p>
+  <div class="status">
+    <span id="coins">💰 Coins: 0</span> |
+    <span id="pieces">🧩 Pieces: 0</span>
+  </div>
+  <a href="index.html">⬅ Back to Home</a>
+
+  <script>
+    // 📌 50 STEM questions for age 11–12
+    let questions = [
+      {q:"What is H2O?", options:["Oxygen","Water","Hydrogen"], answer:1, explanation:"H2O is water."},
+      {q:"Which planet is known as the Red Planet?", options:["Earth","Mars","Venus"], answer:1, explanation:"Mars is called the Red Planet."},
+      {q:"What is 12 × 8?", options:["96","108","88"], answer:0, explanation:"12 × 8 = 96."},
+      {q:"Which gas do humans need to breathe?", options:["Carbon Dioxide","Oxygen","Nitrogen"], answer:1, explanation:"We need oxygen to live."},
+      {q:"What part of the plant makes food?", options:["Root","Leaf","Stem"], answer:1, explanation:"Leaves make food by photosynthesis."},
+      {q:"Which organ pumps blood in our body?", options:["Brain","Lungs","Heart"], answer:2, explanation:"The heart pumps blood."},
+      {q:"What is 1000 grams equal to?", options:["1 kilogram","10 kilograms","100 kilograms"], answer:0, explanation:"1000 g = 1 kg."},
+      {q:"Which star gives us light and heat?", options:["Moon","Sun","Polaris"], answer:1, explanation:"The Sun provides light and heat."},
+      {q:"What is freezing point of water?", options:["0°C","32°C","100°C"], answer:0, explanation:"Water freezes at 0°C (32°F)."},
+      {q:"What is 7 squared (7 × 7)?", options:["49","56","77"], answer:0, explanation:"7 × 7 = 49."},
+      {q:"Which gas do plants release during photosynthesis?", options:["Oxygen","Carbon Dioxide","Nitrogen"], answer:0, explanation:"Plants release oxygen."},
+      {q:"What is the capital of cells?", options:["Nucleus","Cytoplasm","Membrane"], answer:0, explanation:"The nucleus controls the cell."},
+      {q:"How many sides does a hexagon have?", options:["5","6","8"], answer:1, explanation:"Hexagon has 6 sides."},
+      {q:"What is 144 ÷ 12?", options:["12","14","10"], answer:0, explanation:"144 ÷ 12 = 12."},
+      {q:"Which gas is known as laughing gas?", options:["Oxygen","Nitrous Oxide","Carbon Dioxide"], answer:1, explanation:"N2O is laughing gas."},
+      {q:"What is the speed of light?", options:["300,000 km/s","150,000 km/s","30,000 km/s"], answer:0, explanation:"Light travels at ~300,000 km/s."},
+      {q:"Which vitamin is made in skin from sunlight?", options:["Vitamin A","Vitamin C","Vitamin D"], answer:2, explanation:"Vitamin D is made from sunlight."},
+      {q:"Which planet has rings?", options:["Saturn","Mars","Venus"], answer:0, explanation:"Saturn has beautiful rings."},
+      {q:"What is 15% of 200?", options:["20","25","30"], answer:2, explanation:"15% × 200 = 30."},
+      {q:"Which element has symbol Fe?", options:["Iron","Fluorine","Francium"], answer:0, explanation:"Fe is Iron."},
+      {q:"What type of energy is stored in food?", options:["Kinetic","Chemical","Heat"], answer:1, explanation:"Food contains chemical energy."},
+      {q:"What is boiling point of water?", options:["50°C","100°C","200°C"], answer:1, explanation:"Water boils at 100°C."},
+      {q:"Which is the smallest planet in our solar system?", options:["Mercury","Mars","Pluto"], answer:0, explanation:"Mercury is the smallest."},
+      {q:"How many bones in adult human body?", options:["206","210","180"], answer:0, explanation:"Adults have 206 bones."},
+      {q:"What is the square root of 81?", options:["7","8","9"], answer:2, explanation:"√81 = 9."},
+      {q:"What is photosynthesis?", options:["Breathing","Making food","Reproduction"], answer:1, explanation:"Plants make food by photosynthesis."},
+      {q:"What is 1 kilometer equal to?", options:["100 m","1000 m","10000 m"], answer:1, explanation:"1 km = 1000 meters."},
+      {q:"Which gas do humans exhale?", options:["Oxygen","Nitrogen","Carbon Dioxide"], answer:2, explanation:"We exhale carbon dioxide."},
+      {q:"Which blood cells fight infections?", options:["Red cells","White cells","Platelets"], answer:1, explanation:"WBC fight infections."},
+      {q:"What is 9 × 11?", options:["99","98","101"], answer:0, explanation:"9 × 11 = 99."},
+      {q:"Which natural satellite orbits Earth?", options:["Sun","Moon","Mars"], answer:1, explanation:"The Moon orbits Earth."},
+      {q:"What is the hardest natural substance?", options:["Gold","Diamond","Iron"], answer:1, explanation:"Diamond is hardest."},
+      {q:"What is 20% of 250?", options:["50","40","60"], answer:0, explanation:"20% × 250 = 50."},
+      {q:"Which planet is closest to Sun?", options:["Venus","Mercury","Earth"], answer:1, explanation:"Mercury is closest."},
+      {q:"Which part of blood carries oxygen?", options:["RBC","WBC","Platelets"], answer:0, explanation:"Red blood cells carry oxygen."},
+      {q:"How many centimeters in 1 meter?", options:["10","100","1000"], answer:1, explanation:"1 meter = 100 cm."},
+      {q:"What gas do fire extinguishers release?", options:["Oxygen","Carbon Dioxide","Hydrogen"], answer:1, explanation:"CO₂ puts out fire."},
+      {q:"What is 13 × 12?", options:["144","156","166"], answer:1, explanation:"13 × 12 = 156."},
+      {q:"Which part of the plant absorbs water?", options:["Stem","Leaves","Roots"], answer:2, explanation:"Roots absorb water."},
+      {q:"How many planets are in our solar system?", options:["8","9","7"], answer:0, explanation:"There are 8 planets."},
+      {q:"What is 25 squared?", options:["525","625","725"], answer:1, explanation:"25 × 25 = 625."},
+      {q:"What is the largest planet?", options:["Earth","Jupiter","Saturn"], answer:1, explanation:"Jupiter is the largest."},
+      {q:"Which is the nearest star to Earth?", options:["Proxima Centauri","Sun","Polaris"], answer:1, explanation:"The Sun is nearest."},
+      {q:"What is 200 ÷ 25?", options:["10","8","12"], answer:0, explanation:"200 ÷ 25 = 8."},
+      {q:"Which blood type is universal donor?", options:["O negative","AB positive","A positive"], answer:0, explanation:"O− is universal donor."},
+      {q:"What is Newton’s third law?", options:["Every action has equal opposite reaction","Energy is conserved","Objects fall down"], answer:0, explanation:"For every action there is equal opposite reaction."},
+      {q:"How many hours in 2 days?", options:["24","36","48"], answer:2, explanation:"2 × 24 = 48 hours."},
+      {q:"Which gas is used in balloons?", options:["Oxygen","Hydrogen","Helium"], answer:2, explanation:"Helium is used in balloons."},
+      {q:"What is 3 cubed (3 × 3 × 3)?", options:["6","9","27"], answer:2, explanation:"3³ = 27."},
+      {q:"What is the main source of energy for Earth?", options:["Moon","Sun","Wind"], answer:1, explanation:"The Sun is the main energy source."},
+      {q:"Which sense organ helps us to see?", options:["Ears","Eyes","Nose"], answer:1, explanation:"We see with our eyes."}
+    ];
+      
+    let current = 0;
+    let coins = parseInt(localStorage.getItem("coins")) || 0;
+    let pieces = parseInt(localStorage.getItem("pieces")) || 0;
+
+    function updateStatus(){
+      document.getElementById("coins").innerText = "💰 Coins: " + coins;
+      document.getElementById("pieces").innerText = "🧩 Pieces: " + pieces;
+    }
+
+    function loadQuestion(){
+      if(current >= questions.length){
+        document.getElementById("question").innerText = "🎉 Quiz Complete!";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("feedback").innerText = "You earned "+coins+" coins!";
+        localStorage.setItem("coins", coins);
+        localStorage.setItem("pieces", pieces);
+        return;
+      }
+      let q = questions[current];
+      document.getElementById("question").innerText = "Q"+(current+1)+": "+q.q;
+      let opts = document.getElementById("options");
+      opts.innerHTML = "";
+      q.options.forEach((opt,i)=>{
+        let btn=document.createElement("button");
+        btn.innerText=opt;
+        btn.onclick=()=>checkAnswer(i);
+        opts.appendChild(btn);
+      });
+      updateStatus();
+    }
+
+    function checkAnswer(i){
+      let q = questions[current];
+      if(i === q.answer){
+        coins+=10; pieces++;
+        document.getElementById("feedback").innerText="✅ Correct! 🎉";
+      } else {
+        document.getElementById("feedback").innerText="❌ Wrong! "+q.explanation;
+      }
+      localStorage.setItem("coins", coins);
+      localStorage.setItem("pieces", pieces);
+      current++;
+      setTimeout(loadQuestion,1500);
+    }
+
+    loadQuestion();
+
+    // ⏰ Break reminder after 30 minutes
+    setTimeout(()=>{ alert("⏰ Time for a short break!"); }, 30*60*1000);
+  </script>
+</body>
+</html>
+<script>
+  // Timer: 1 minutes (in milliseconds)
+  setTimeout(() => {
+    document.body.innerHTML = `
+      <div style="text-align:center; padding:40px; font-family:Arial; background:#ffe082; border-radius:12px;">
+        <h2>⏳ Screen Time Limit</h2>
+        <p>It’s enough screen time today.<br>Let’s meet tomorrow! 🌱</p>
+      </div>
+    `;
+    alert("It’s enough screen time today. Let’s meet tomorrow! 🌱");
+  }, 1 * 60 * 1000);
+</script>
+
+
+
+
+
+

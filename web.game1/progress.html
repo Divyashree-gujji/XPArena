@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XP Arena - Progress</title>
+  <style>
+    body { background:#1b263b; color:white; font-family:'Comic Sans MS', cursive; text-align:center; }
+    .box { margin:20px; padding:20px; background:#0d1b2a; border-radius:12px; display:inline-block; }
+    a { display:block; margin-top:20px; color:yellow; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h1>📊 Your Progress</h1>
+  <div class="box">
+    <p>💰 Coins: <span id="coins">0</span></p>
+    <p>🧩 Puzzle Pieces: <span id="pieces">0</span></p>
+  </div>
+  <a href="index.html">⬅ Back to Home</a>
+
+  <script>
+    document.getElementById("coins").innerText = localStorage.getItem("coins") || 0;
+    document.getElementById("pieces").innerText = localStorage.getItem("pieces") || 0;
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Smart AR Object Scanner</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; text-align:center; background:#000; color:#fff; }
+    #controls { margin:15px; }
+    #controls button {
+      margin:5px; padding:10px 15px;
+      border:none; border-radius:6px;
+      cursor:pointer; background:#339af0; color:white;
+      font-size:14px;
+    }
+    #controls button:hover { background:#1c7ed6; }
+    video, canvas { max-width:95%; margin-top:10px; border-radius:10px; }
+    #infoBox {
+      margin:15px auto; text-align:left; background:#fff; color:#000;
+      padding:15px; border-radius:10px; max-width:500px;
+      box-shadow:0 3px 8px rgba(0,0,0,0.3);
+    }
+    #infoBox h3 { margin:0 0 8px 0; font-size:18px; color:#333; }
+    #infoBox p { margin:4px 0; font-size:14px; color:#444; }
+    .options button {
+      display:block; width:100%; margin:5px 0; padding:8px;
+      border:none; border-radius:6px; background:#339af0; color:white;
+      cursor:pointer; font-size:14px;
+    }
+    .correct { background:#2ecc71 !important; }
+    .wrong { background:#e74c3c !important; }
+  </style>
+</head>
+<body>
+  <h2>🤖 Smart AR Object Scanner</h2>
+
+  <div id="controls">
+    <button onclick="startScan()">Start Scan</button>
+    <button onclick="stopScan()">Stop Scan</button>
+    <button onclick="capturePhoto()">Capture Photo</button>
+    <button onclick="newScan()">New Scan</button>
+  </div>
+
+  <video id="video" autoplay playsinline muted style="display:none;"></video>
+  <canvas id="canvas"></canvas>
+
+  <div id="infoBox">
+    <h3>Welcome</h3>
+    <p>Click <b>Start Scan</b> to begin scanning objects.</p>
+  </div>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const infoBox = document.getElementById("infoBox");
+
+    let model, stream, animFrame;
+    let lastDetected = "";
+    let scanning = false;
+    let frozen = false;
+
+    // Knowledge base with descriptions + quiz
+    const knowledge = {
+      apple: {
+        desc: "A fruit that is usually red, green, or yellow.",
+        q: "What vitamin are apples rich in?",
+        options: ["Vitamin A", "Vitamin C", "Vitamin D"],
+        correct: "Vitamin C"
+      },
+      banana: {
+        desc: "A long, yellow fruit that is soft and sweet inside.",
+        q: "Bananas are a good source of which mineral?",
+        options: ["Iron", "Potassium", "Calcium"],
+        correct: "Potassium"
+      },
+      tissue: {
+        desc: "A thin piece of soft paper used for cleaning or wiping.",
+        q: "What do we usually use a tissue for?",
+        options: ["Wiping hands or face", "Writing", "Cooking food"],
+        correct: "Wiping hands or face"
+      }
+    };
+
+    // Load the model once
+    cocoSsd.load().then(m => {
+      model = m;
+      infoBox.innerHTML = "<h3>Ready ✅</h3><p>Click Start Scan to use the camera.</p>";
+    });
+
+    async function startScan() {
+      if (!model) {
+        alert("Model is still loading, please wait.");
+        return;
+      }
+      if (scanning) return;
+
+      stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+
+      video.onloadedmetadata = () => {
+        video.play();
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        scanning = true;
+        frozen = false;
+        detectFrame();
+      };
+    }
+
+    function stopScan() {
+      scanning = false;
+      frozen = false;
+      if (animFrame) cancelAnimationFrame(animFrame);
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      infoBox.innerHTML = "<h3>Scan stopped ⏹️</h3><p>Click New Scan to restart.</p>";
+    }
+
+    function capturePhoto() {
+      if (!scanning) return;
+      frozen = true;
+      infoBox.innerHTML += "<p><i>📸 Photo captured. Click New Scan to resume.</i></p>";
+    }
+
+    function newScan() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      infoBox.innerHTML = "<h3>New Scan</h3><p>Click Start Scan to begin again.</p>";
+      scanning = false;
+      frozen = false;
+      lastDetected = "";
+    }
+
+    function detectFrame() {
+      if (!scanning || frozen) return;
+
+      model.detect(video).then(predictions => {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        if (predictions.length > 0) {
+          const best = predictions[0];
+          const [x, y, width, height] = best.bbox;
+          ctx.strokeStyle = "#00FFFF";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x, y, width, height);
+
+          ctx.fillStyle = "#00FFFF";
+          ctx.font = "16px Arial";
+          ctx.fillText(best.class + " (" + Math.round(best.score*100) + "%)", x, y > 10 ? y - 5 : 10);
+
+          showInfo(best.class);
+        }
+      });
+      animFrame = requestAnimationFrame(detectFrame);
+    }
+
+    function showInfo(objectName) {
+      if (objectName !== lastDetected) {
+        lastDetected = objectName;
+
+        if (knowledge[objectName]) {
+          const data = knowledge[objectName];
+          infoBox.innerHTML = `
+            <h3>✅ Scan complete</h3>
+            <p><b>Detected Object:</b> ${capitalize(objectName)}</p>
+            <p><b>Description:</b> ${data.desc}</p>
+            <hr>
+            <p><strong>Quiz Time 🎯</strong></p>
+            <p>${data.q}</p>
+            <div class="options">
+              ${data.options.map(opt => `<button>${opt}</button>`).join("")}
+            </div>
+          `;
+
+          const buttons = infoBox.querySelectorAll("button");
+          buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+              if (btn.textContent === data.correct) {
+                btn.classList.add("correct");
+              } else {
+                btn.classList.add("wrong");
+              }
+            });
+          });
+        } else {
+          infoBox.innerHTML = `
+            <h3>✅ Scan complete</h3>
+            <p><b>Detected Object:</b> ${capitalize(objectName)}</p>
+            <p>No extra info or quiz available yet.</p>
+          `;
+        }
+      }
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+  </script>
+</body>
+</html>
